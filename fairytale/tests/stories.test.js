@@ -92,6 +92,20 @@ test('장면에 들어가는 모든 그림 배경이 그려진다', () => {
   }
 });
 
+test('그림에 쓰인 움직임 이름은 모두 style.css에 정의돼 있다', () => {
+  const css = require('node:fs').readFileSync(require('node:path').join(__dirname, '../css/style.css'), 'utf8');
+  const ctx = { photo: null, outfit: FT.outfitById('yellow'), friend: '🐰' };
+  const used = new Set();
+  const collect = (svg) => { for (const m of svg.matchAll(/class="([^"]+)"/g)) used.add(m[1]); };
+  for (const world of ['forest', 'sea', 'sky', 'space']) {
+    for (let seed = 1; seed <= 60; seed++) {
+      for (const p of FT.makeStory({ name: '지우', world }, seed).pages) collect(FT.renderScene(p.art, ctx));
+    }
+  }
+  collect(FT.renderScene({ bg: 'beach', baby: [100, 150, 1, 'up'] }, ctx));
+  for (const name of used) assert.match(css, new RegExp(`\\.art \\.${name}\\b`), `.art .${name} 규칙이 없어요`);
+});
+
 test('한 그림 안에서 id가 겹치지 않는다 (겹치면 사진이 동그랗게 잘리지 않아요)', () => {
   const ctx = { photo: 'data:image/jpeg;base64,AAAA', outfit: FT.outfitById('yellow'), friend: '🐰' };
   for (let seed = 1; seed <= 30; seed++) {

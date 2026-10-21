@@ -169,17 +169,85 @@ button { cursor: pointer; }
 .art svg { display: block; width: 100%; height: 100%; }
 .art text { font-family: var(--font-emoji); }
 
-.art .bob { animation: bob 3.2s ease-in-out infinite; }
-.art .bob2 { animation: bob 2.6s ease-in-out 0.4s infinite; }
-.art .float { animation: float 4s ease-in-out infinite; }
-.art .twinkle { animation: twinkle 2.4s ease-in-out infinite; }
-.art .sway { animation: sway 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+/*
+ * 그림 움직임: 아기 눈에 편하도록 느리게(한 번에 3~14초), 작게(몇 px, 몇 도) 움직여요.
+ * 깜빡이거나 빠르게 튀는 움직임은 넣지 않아요. 어떤 물건이 어떻게 움직일지는 art.js가 정해요.
+ */
+.art g[class], .art circle[class] { transform-box: fill-box; transform-origin: 50% 50%; }
+
+/* 아기와 친구 */
+.art .breathe { animation: breathe 3.6s ease-in-out infinite; }
+.art .nod { transform-origin: 50% 100%; animation: nod 6s ease-in-out infinite; }
+.art .wave-l { transform-origin: 100% 100%; animation: wave-l 3.2s ease-in-out infinite; }
+.art .wave-r { transform-origin: 0% 100%; animation: wave-r 3.2s ease-in-out infinite; }
+.art .friend { transform-origin: 50% 100%; animation: friend 4.4s ease-in-out -1s infinite; }
+.art .pulse { animation: pulse 5s ease-in-out infinite; }
+.art .spin-slow { animation: spin 60s linear infinite; }
+
+/* 소품 */
+.art .bob { animation: bob 3.4s ease-in-out infinite; }
+.art .float { animation: float 5s ease-in-out infinite; }
+.art .drift { animation: drift 10s ease-in-out infinite; }
+.art .swim { animation: swim 8s ease-in-out infinite; }
+.art .flutter { animation: flutter 6s ease-in-out infinite; }
+.art .balloon { transform-origin: 50% 100%; animation: sway 5s ease-in-out infinite; }
+.art .leaf { animation: leaf 9s ease-in-out infinite; }
+.art .sway { transform-origin: 50% 100%; animation: sway 5s ease-in-out infinite; }
+.art .scuttle { animation: scuttle 6s ease-in-out infinite; }
+.art .drip { animation: drip 3.4s ease-in infinite; }
+.art .rise { animation: rise 5s ease-out infinite; }
+.art .twinkle { animation: twinkle 4s ease-in-out infinite; }
+.art .beat { animation: beat 3s ease-in-out infinite; }
+.art .spin { animation: spin 40s linear infinite; }
 .art .dim { opacity: 0.35; filter: grayscale(1); }
 
+/* 배경 */
+.art .glow { animation: glow 5s ease-in-out infinite; }
+.art .shimmer { animation: shimmer 8s ease-in-out infinite; }
+.art .bubble { animation: bubble 7s linear infinite; }
+.art .firefly { animation: firefly 6s ease-in-out infinite; }
+.art .treesway { transform-origin: 50% 100%; animation: treesway 9s ease-in-out infinite; }
+.art .curtain { transform-origin: 50% 0%; animation: curtain 8s ease-in-out infinite; }
+.art .wave { animation: wave 9s linear infinite; }
+
+@keyframes breathe { 50% { transform: translateY(-3px); } }
+@keyframes nod { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes wave-l { 50% { transform: rotate(-12deg); } }
+@keyframes wave-r { 50% { transform: rotate(12deg); } }
+@keyframes friend {
+  25% { transform: translateY(-4px) rotate(-3deg); }
+  50% { transform: translateY(0) rotate(0); }
+  75% { transform: translateY(-4px) rotate(3deg); }
+}
+@keyframes pulse { 50% { transform: scale(1.025); } }
 @keyframes bob { 50% { transform: translateY(-4px); } }
-@keyframes float { 50% { transform: translateY(-7px); } }
-@keyframes twinkle { 50% { opacity: 0.35; } }
-@keyframes sway { 50% { transform: rotate(4deg); } }
+@keyframes float { 50% { transform: translateY(-6px); } }
+@keyframes drift { 50% { transform: translateX(10px); } }
+@keyframes swim { 25% { transform: translate(-8px, -2px); } 75% { transform: translate(8px, 2px); } }
+@keyframes flutter {
+  25% { transform: translate(6px, -6px) rotate(6deg); }
+  50% { transform: translate(0, -9px); }
+  75% { transform: translate(-6px, -4px) rotate(-6deg); }
+}
+@keyframes leaf { 50% { transform: translate(12px, 6px) rotate(25deg); } }
+@keyframes sway { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes scuttle { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes drip { 0% { transform: translateY(-2px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
+@keyframes rise { 0% { transform: translateY(4px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-12px); opacity: 0; } }
+@keyframes twinkle { 50% { opacity: 0.55; transform: scale(0.92); } }
+@keyframes beat { 50% { transform: scale(1.08); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes glow { 50% { opacity: 0.85; } }
+@keyframes shimmer { 50% { opacity: 0.22; } }
+@keyframes bubble { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 0.8; } 85% { opacity: 0.6; } 100% { transform: translateY(-40px); opacity: 0; } }
+@keyframes firefly {
+  0%, 100% { transform: translate(0, 0); opacity: 0.9; }
+  33% { transform: translate(6px, -5px); opacity: 0.45; }
+  66% { transform: translate(-4px, -8px); opacity: 1; }
+}
+@keyframes treesway { 25% { transform: rotate(-1deg); } 75% { transform: rotate(1deg); } }
+@keyframes curtain { 50% { transform: rotate(1.2deg); } }
+@keyframes wave { to { transform: translateX(-40px); } }
 
 /* ---------- 만들기 화면 ---------- */
 
@@ -344,6 +412,7 @@ input[type="text"]:focus { outline: none; border-color: var(--moon); }
   text-align: left;
 }
 .shelf-open .art { flex: none; width: 92px; border-radius: 12px; box-shadow: none; }
+.shelf .art * { animation: none !important; } /* 책장의 작은 표지는 가만히 */
 .shelf-text { min-width: 0; display: grid; }
 .shelf-text strong { font-family: var(--font-display); font-weight: 400; font-size: 1.05rem; line-height: 1.35; }
 .shelf-text small { color: var(--ink-soft); }

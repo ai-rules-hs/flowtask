@@ -22,6 +22,18 @@
     return `<defs>${vgrad(id, top, bottom, 0, 300)}</defs><rect width="400" height="300" fill="url(#${id})"/>`;
   }
 
+  // 소품마다 어울리는 움직임. 모두 느리고 작게 움직여요 (속도와 폭은 style.css의 .art 애니메이션).
+  // 여기 없는 이모지(곰 인형, 버섯 같은 물건)는 가만히 있어요.
+  const MOTION = {
+    '🦋': 'flutter', '🐞': 'flutter',
+    '🐠': 'swim', '🐟': 'swim', '🐡': 'swim',
+    '🐬': 'drift', '🐢': 'drift', '🐳': 'drift', '🐙': 'drift', '🚀': 'drift', '👽': 'drift', '🌙': 'drift',
+    '🦉': 'bob', '🐦': 'bob', '🐿️': 'bob', '🦔': 'bob', '🐸': 'bob', '🐇': 'bob', '🦀': 'scuttle',
+    '🎈': 'balloon', '🍃': 'leaf', '🌸': 'sway', '🌼': 'sway', '🌱': 'sway',
+    '💧': 'drip', '💦': 'rise', '🎵': 'rise', '🎶': 'rise', '💤': 'rise',
+    '⭐': 'twinkle', '✨': 'twinkle', '🌟': 'twinkle', '💛': 'beat', '☀️': 'spin'
+  };
+
   // 움직임은 안쪽 <g>에만 걸어요. 바깥 transform과 CSS 애니메이션이 서로 덮어쓰지 않게요.
   function place(x, y, inner, anim, delay) {
     const cls = anim && anim !== 'none' ? ` class="${anim}"` : '';
@@ -34,7 +46,7 @@
   }
 
   function sun(x, y, r) {
-    return `<circle cx="${x}" cy="${y}" r="${r + 9}" fill="#FFE89A" opacity=".55"/><circle cx="${x}" cy="${y}" r="${r}" fill="#FFD45C"/>`;
+    return `<circle cx="${x}" cy="${y}" r="${r + 9}" fill="#FFE89A" opacity=".55" class="glow"/><circle cx="${x}" cy="${y}" r="${r}" fill="#FFD45C"/>`;
   }
 
   // 초승달: 노란 원 위에 하늘색 원을 겹쳐 오려 내요 (cut은 하늘과 같은 채움)
@@ -65,9 +77,9 @@
 
   function tree(x, y, s, c) {
     return (
-      `<g transform="translate(${x} ${y}) scale(${s})">` +
+      `<g transform="translate(${x} ${y}) scale(${s})"><g class="treesway" style="animation-delay:-${r1((x % 9) * 0.7)}s">` +
       `<rect x="-6" y="0" width="12" height="48" rx="4" fill="${c.trunk}"/>` +
-      `<circle cx="0" cy="-12" r="30" fill="${c.leafA}"/><circle cx="-20" cy="4" r="20" fill="${c.leafB}"/><circle cx="20" cy="2" r="22" fill="${c.leafB}"/></g>`
+      `<circle cx="0" cy="-12" r="30" fill="${c.leafA}"/><circle cx="-20" cy="4" r="20" fill="${c.leafB}"/><circle cx="20" cy="2" r="22" fill="${c.leafB}"/></g></g>`
     );
   }
 
@@ -113,15 +125,15 @@
       const win = `url(#${id}w)`;
       const view = night
         ? moon(318, 80, 16, win) + '<circle cx="268" cy="64" r="1.6" fill="#FFF8D6" class="twinkle"/><circle cx="284" cy="114" r="1.3" fill="#FFF8D6"/><circle cx="340" cy="124" r="1.6" fill="#FFF8D6" class="twinkle"/>'
-        : sun(320, 78, 14) + cloud(278, 116, 0.42);
+        : sun(320, 78, 14) + cloud(278, 116, 0.42, null, 'drift');
       return (
         `<defs>${vgrad(id + 'w', c.s1, c.s2, 46, 142)}<clipPath id="${id}c"><rect x="246" y="46" width="108" height="96" rx="6"/></clipPath></defs>` +
         `<rect width="400" height="300" fill="${c.wall}"/><g fill="${c.dot}">${dots}</g>` +
         `<rect x="238" y="38" width="124" height="112" rx="12" fill="${c.frame}"/>` +
         `<g clip-path="url(#${id}c)"><rect x="246" y="46" width="108" height="96" fill="${win}"/>${view}</g>` +
         `<rect x="298" y="46" width="4" height="96" fill="${c.frame}"/><rect x="246" y="92" width="108" height="4" fill="${c.frame}"/>` +
-        `<path d="M228 33 H254 Q244 96 252 160 Q238 167 226 160 Z" fill="${c.curtain}"/>` +
-        `<path d="M372 33 H346 Q356 96 348 160 Q362 167 374 160 Z" fill="${c.curtain}"/>` +
+        `<g class="curtain"><path d="M228 33 H254 Q244 96 252 160 Q238 167 226 160 Z" fill="${c.curtain}"/></g>` +
+        `<g class="curtain" style="animation-delay:-3s"><path d="M372 33 H346 Q356 96 348 160 Q362 167 374 160 Z" fill="${c.curtain}"/></g>` +
         `<rect x="222" y="28" width="156" height="7" rx="3.5" fill="${c.edge}"/>` +
         `<rect y="232" width="400" height="68" fill="${c.floor}"/><rect y="232" width="400" height="5" fill="${c.edge}"/>` +
         `<ellipse cx="200" cy="270" rx="150" ry="20" fill="${c.rug}"/>` +
@@ -135,7 +147,9 @@
         ? { s1: '#202862', s2: '#58498C', far: '#2D5752', mid: '#25483F', near: '#1D3B33', leafA: '#1F4E3D', leafB: '#193F31', trunk: '#4B3A3A', path: '#4D4864' }
         : { s1: '#A9DFFF', s2: '#EEFAFF', far: '#B4E2A6', mid: '#8DCF80', near: '#6BBE60', leafA: '#5CB65C', leafB: '#4AA24D', trunk: '#9A6B45', path: '#F2DDB0' };
       let out = skyRect(id + 's', c.s1, c.s2);
-      out += night ? moon(334, 58, 18, `url(#${id}s)`) + stars(26, 3, 140) : sun(334, 56, 20) + cloud(90, 62, 0.8) + cloud(244, 40, 0.6);
+      out += night
+        ? moon(334, 58, 18, `url(#${id}s)`) + stars(26, 3, 140)
+        : sun(334, 56, 20) + cloud(90, 62, 0.8, null, 'drift') + cloud(244, 40, 0.6, null, 'drift', -6);
       out += `<path d="M0 168 Q60 122 130 150 T260 140 T400 148 V300 H0Z" fill="${c.far}"/>`;
       out += tree(36, 150, 0.8, c) + tree(104, 162, 0.65, c) + tree(306, 152, 0.75, c) + tree(370, 164, 0.62, c);
       if (o.bigTree) {
@@ -153,7 +167,7 @@
       }
       if (night) {
         out += '<g fill="#FFF3A0">' + [[60, 200], [150, 186], [250, 210], [330, 194], [390, 226], [20, 236]].map(([x, y], i) =>
-          `<circle cx="${x}" cy="${y}" r="2.4" class="twinkle" style="animation-delay:${i * 0.4}s"/>`).join('') + '</g>';
+          place(x, y, '<circle r="2.4"/>', 'firefly', -i * 1.1)).join('') + '</g>';
       } else {
         out += [[40, 262, '#FF9BB3'], [92, 272, '#FFE07A'], [300, 274, '#FFFFFF'], [356, 262, '#FF9BB3'], [210, 290, '#FFE07A']].map(([x, y, f]) =>
           `<circle cx="${x}" cy="${y}" r="4" fill="${f}"/><circle cx="${x}" cy="${y}" r="1.6" fill="#F4A940"/>`).join('');
@@ -164,7 +178,7 @@
     sea(o, id) {
       const night = o.t === 'night';
       let out = skyRect(id + 's', night ? '#1C4F8C' : '#86DDF4', night ? '#0E2552' : '#2A78BF');
-      out += '<g fill="#fff" opacity=".13"><path d="M50 0 H100 L160 300 H110Z"/><path d="M190 0 H220 L250 300 H215Z"/><path d="M300 0 H360 L330 300 H290Z"/></g>';
+      out += '<g fill="#fff" opacity=".13" class="shimmer"><path d="M50 0 H100 L160 300 H110Z"/><path d="M190 0 H220 L250 300 H215Z"/><path d="M300 0 H360 L330 300 H290Z"/></g>';
       out += '<path d="M0 252 Q100 238 200 250 T400 246 V300 H0Z" fill="#F4D7A3"/>';
       out += '<g fill="#8E9CB8"><ellipse cx="370" cy="256" rx="30" ry="14"/><ellipse cx="44" cy="262" rx="22" ry="10"/></g>';
       out += '<g stroke="#38C08A" stroke-width="9" stroke-linecap="round" fill="none">' +
@@ -172,18 +186,21 @@
         place(0, 0, '<path d="M352 300 Q340 272 354 250 T348 206"/>', 'sway', 1.2) + '</g>';
       out += '<g fill="#FF8B94"><circle cx="316" cy="250" r="9"/><circle cx="330" cy="238" r="11"/><circle cx="346" cy="250" r="8"/><circle cx="324" cy="226" r="7"/></g>';
       out += '<g fill="#FFB347"><circle cx="96" cy="258" r="6"/><circle cx="106" cy="248" r="7"/><circle cx="116" cy="258" r="6"/></g>';
-      out += '<g fill="none" stroke="#fff" stroke-width="2" opacity=".7">' +
-        [[70, 150, 6], [82, 128, 4], [76, 108, 3], [360, 120, 5], [350, 100, 3.5], [210, 40, 4]].map(([x, y, r], i) =>
-          place(x, y, `<circle r="${r}"/>`, 'float', i * 0.5)).join('') + '</g>';
+      // 거품은 천천히 떠오르다 사라져요
+      out += '<g fill="none" stroke="#fff" stroke-width="2">' +
+        [[70, 170, 6], [84, 150, 4], [76, 130, 3], [360, 140, 5], [348, 120, 3.5], [210, 60, 4]].map(([x, y, r], i) =>
+          place(x, y, `<circle r="${r}"/>`, 'bubble', -i * 1.3)).join('') + '</g>';
       return out;
     },
 
     beach(o, id) {
       let out = skyRect(id + 's', '#9BDBFF', '#EAF8FF');
-      out += sun(326, 58, 20) + cloud(90, 60, 0.7) + cloud(220, 44, 0.5);
+      out += sun(326, 58, 20) + cloud(90, 60, 0.7, null, 'drift') + cloud(220, 44, 0.5, null, 'drift', -7);
       out += '<rect y="168" width="400" height="132" fill="#4DB2E8"/><rect y="168" width="400" height="6" fill="#7FCBF2"/>';
+      // 물결은 한 무늬(40)만큼 옆으로 흘러갔다 제자리로 돌아와서 끊김 없이 이어져요
       out += '<g fill="none" stroke="#E8F7FF" stroke-width="3" stroke-linecap="round" opacity=".7">' +
-        [192, 226, 260, 292].map((y, i) => `<path d="M${i % 2 ? -20 : 0} ${y} q20 -7 40 0${' t40 0'.repeat(10)}"/>`).join('') + '</g>';
+        [192, 226, 260, 292].map((y, i) =>
+          `<g class="wave" style="animation-delay:-${i * 2}s"><path d="M${i % 2 ? -20 : 0} ${y} q20 -7 40 0${' t40 0'.repeat(11)}"/></g>`).join('') + '</g>';
       return out;
     },
 
@@ -192,7 +209,7 @@
       let out = skyRect(id + 's', night ? '#1F2363' : '#FFD3E4', night ? '#5A4EA6' : '#CFE6FF');
       out += night ? moon(70, 58, 18, `url(#${id}s)`) + stars(30, 5, 200) : sun(70, 58, 18);
       if (o.rainbow) out += rainbow(200, 292, 178);
-      out += cloud(306, 74, 0.7, night ? '#DAD6F6' : '#FFFFFF', 'float') + cloud(112, 116, 0.5, night ? '#DAD6F6' : '#FFFFFF', 'float', 1.5);
+      out += cloud(306, 74, 0.7, night ? '#DAD6F6' : '#FFFFFF', 'drift') + cloud(112, 116, 0.5, night ? '#DAD6F6' : '#FFFFFF', 'drift', -8);
       const floor = night ? '#D9D5F5' : '#FFFFFF';
       let puffs = '';
       for (let x = -10, i = 0; x <= 420; x += 46, i++) puffs += `<circle cx="${x}" cy="${i % 2 ? 262 : 254}" r="${i % 2 ? 30 : 36}"/>`;
@@ -204,7 +221,7 @@
       let out = skyRect(id + 's', '#0B1235', '#2C1D5F');
       out += `<defs><radialGradient id="${id}n1"><stop offset="0" stop-color="#FF7EB6" stop-opacity=".42"/><stop offset="1" stop-color="#FF7EB6" stop-opacity="0"/></radialGradient>` +
         `<radialGradient id="${id}n2"><stop offset="0" stop-color="#6FA8FF" stop-opacity=".38"/><stop offset="1" stop-color="#6FA8FF" stop-opacity="0"/></radialGradient></defs>`;
-      out += `<circle cx="90" cy="90" r="120" fill="url(#${id}n1)"/><circle cx="330" cy="200" r="140" fill="url(#${id}n2)"/>`;
+      out += `<circle cx="90" cy="90" r="120" fill="url(#${id}n1)" class="glow"/><circle cx="330" cy="200" r="140" fill="url(#${id}n2)" class="glow" style="animation-delay:-4s"/>`;
       out += stars(64, 11, 300);
       if (o.planet === 'big') out += planet(270, 130, 62);
       else if (o.planet) out += planet(322, 86, 30);
@@ -248,24 +265,28 @@
     const [x, y, s = 1, pose] = art.baby;
     const o = ctx.outfit;
     const up = pose === 'up';
-    const arms = up ? ['M-17 40 Q-32 32 -31 16', 'M17 40 Q32 32 31 16'] : ['M-17 40 Q-31 48 -29 62', 'M17 40 Q31 48 29 62'];
-    const hand = up ? [31, 14] : [29, 63];
-    let extra = '';
-    if (art.hat) extra += `<g transform="translate(0 -40)">${emoji(art.hat, 30)}</g>`;
-    if (art.hold) extra += `<g transform="translate(${hand[0] + 6} ${hand[1] - 8})">${emoji(art.hold, 24)}</g>`;
+    // 팔은 어깨를 축으로 따로 묶어요. 만세 자세일 때만 천천히 흔들고, 들고 있는 물건은 오른손을 따라가요.
+    const arm = (k) => {
+      const d = up ? `M${17 * k} 40 Q${32 * k} 32 ${31 * k} 16` : `M${17 * k} 40 Q${31 * k} 48 ${29 * k} 62`;
+      const hx = (up ? 31 : 29) * k;
+      const hy = up ? 14 : 63;
+      const held = k > 0 && art.hold ? `<g transform="translate(${hx + 6} ${hy - 8})">${emoji(art.hold, 24)}</g>` : '';
+      const cls = up ? ` class="${k < 0 ? 'wave-l' : 'wave-r'}"` : '';
+      return `<g${cls}><path d="${d}" stroke="${o.main}" stroke-width="11" stroke-linecap="round" fill="none"/>` +
+        `<circle cx="${hx}" cy="${hy}" r="6" fill="${o.light}"/>${held}</g>`;
+    };
+    const hat = art.hat ? `<g transform="translate(0 -40)">${emoji(art.hat, 30)}</g>` : '';
     return (
       `<g transform="translate(${x} ${y}) scale(${s})">` +
       '<ellipse cx="0" cy="92" rx="24" ry="5" fill="#000" opacity=".12"/>' +
-      '<g class="bob">' +
+      '<g class="breathe">' +
       `<ellipse cx="-10" cy="85" rx="9" ry="6" fill="${o.dark}"/><ellipse cx="10" cy="85" rx="9" ry="6" fill="${o.dark}"/>` +
       `<path d="M-19 34 C-24 60 -22 80 -10 82 H10 C22 80 24 60 19 34 C10 27 -10 27 -19 34Z" fill="${o.main}"/>` +
-      `<g stroke="${o.main}" stroke-width="11" stroke-linecap="round" fill="none"><path d="${arms[0]}"/><path d="${arms[1]}"/></g>` +
-      `<circle cx="${-hand[0]}" cy="${hand[1]}" r="6" fill="${o.light}"/><circle cx="${hand[0]}" cy="${hand[1]}" r="6" fill="${o.light}"/>` +
+      arm(-1) + arm(1) +
       `<path d="M-11 33 Q0 41 11 33" stroke="${o.light}" stroke-width="4" fill="none" stroke-linecap="round"/>` +
       `<rect x="-8" y="52" width="16" height="12" rx="5" fill="${o.light}"/>` +
-      '<circle r="31" fill="#fff"/>' + photoFace(28, ctx, id + 'face') +
-      `<circle r="31" fill="none" stroke="${o.dark}" stroke-width="1.5" opacity=".45"/>` +
-      extra +
+      '<g class="nod"><circle r="31" fill="#fff"/>' + photoFace(28, ctx, id + 'face') +
+      `<circle r="31" fill="none" stroke="${o.dark}" stroke-width="1.5" opacity=".45"/>${hat}</g>` +
       '</g></g>'
     );
   }
@@ -273,18 +294,20 @@
   function friend(spec, ctx) {
     const [x, y, size = 56] = spec;
     return `<g transform="translate(${x} ${y})"><ellipse cy="${r1(size * 0.48)}" rx="${r1(size * 0.34)}" ry="4" fill="#000" opacity=".12"/>` +
-      `<g class="bob2">${emoji(ctx.friend, size)}</g></g>`;
+      `<g class="friend">${emoji(ctx.friend, size)}</g></g>`;
   }
 
   function portraitFace(spec, ctx, id) {
     const [x, y, r] = spec;
     return `<g transform="translate(${x} ${y})">` +
-      `<circle r="${r + 14}" fill="none" stroke="#FFB020" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>` +
-      `<circle r="${r + 6}" fill="#fff"/>${photoFace(r, ctx, id + 'photo')}</g>`;
+      `<circle r="${r + 14}" fill="none" stroke="#FFB020" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round" class="spin-slow"/>` +
+      `<g class="pulse"><circle r="${r + 6}" fill="#fff"/>${photoFace(r, ctx, id + 'photo')}</g></g>`;
   }
 
+  // 시작 시점을 조금씩 어긋나게 해서 모두 한꺼번에 움직이지 않게 해요.
   function props(list, offset) {
-    return (list || []).map(([e, x, y, size, anim], i) => place(x, y, emoji(e, size), anim, r1((i + offset) * 0.45))).join('');
+    return (list || []).map(([e, x, y, size, anim], i) =>
+      place(x, y, emoji(e, size), anim === 'dim' ? 'dim' : MOTION[e] || anim, -r1((i + offset) * 1.3))).join('');
   }
 
   function extras(art, id) {
