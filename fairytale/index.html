@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리 아기 동화책</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="아기 사진과 이름으로 세상에 하나뿐인 그림 동화를 만들어요. 사진은 기기 밖으로 나가지 않아요.">
+<meta name="theme-color" content="#EEF1FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14132C" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="아기 동화책">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 만들기 화면 -->
+<div class="make" id="screen-make">
+  <header class="make-head">
+    <h1>우리 아기 동화책</h1>
+    <p>아기 사진과 이름을 넣으면, 우리 아기가 주인공인 그림 동화가 펼쳐져요.</p>
+    <button type="button" class="btn-soft small" id="install-btn" hidden>홈 화면에 앱으로 설치</button>
+  </header>
+
+  <figure class="preview" aria-label="표지 미리보기">
+    <div class="art" id="preview-art"></div>
+    <figcaption>
+      <span class="preview-label">이번 이야기 표지</span>
+      <strong id="preview-title"></strong>
+      <span id="preview-sub"></span>
+    </figcaption>
+  </figure>
+
+  <form id="make-form" class="make-form" novalidate>
+    <fieldset class="field">
+      <legend>아기 사진</legend>
+      <div class="photo-row">
+        <div class="thumb" id="photo-thumb" aria-hidden="true"></div>
+        <div class="photo-actions">
+          <label class="btn-soft" for="photo-input">사진 고르기</label>
+          <input type="file" id="photo-input" class="sr-only" accept="image/*">
+          <button type="button" class="btn-ghost" id="photo-clear" hidden>사진 빼기</button>
+        </div>
+      </div>
+      <div class="cropper" id="cropper" hidden>
+        <canvas id="crop-canvas" width="300" height="300" aria-label="얼굴 위치 맞추기"></canvas>
+        <label class="zoom">
+          <span>작게</span>
+          <input type="range" id="crop-zoom" min="1" max="4" step="0.01" value="1" aria-label="사진 확대">
+          <span>크게</span>
+        </label>
+        <p class="hint">사진을 손가락으로 끌어서 얼굴을 동그라미 안에 맞춰 주세요.</p>
+        <div class="crop-actions">
+          <button type="button" class="btn-ghost" id="crop-cancel">취소</button>
+          <button type="button" class="btn-main small" id="crop-done">이 얼굴로 할게요</button>
+        </div>
+      </div>
+      <p class="note">사진은 이 기기 안에서만 쓰여요. 어디에도 보내지 않아요.</p>
+    </fieldset>
+
+    <div class="field">
+      <label class="field-title" for="baby-name">아기 이름</label>
+      <input type="text" id="baby-name" maxlength="10" placeholder="예: 지우" autocomplete="off" enterkeyhint="done">
+      <p class="hint">부르는 이름 그대로 써 주세요. '민준'이라고 쓰면 '민준이가', '민준아'처럼 자연스럽게 바꿔 줘요.</p>
+    </div>
+
+    <fieldset class="field">
+      <legend>함께 떠날 친구</legend>
+      <div class="chips grid3" id="animal-chips"></div>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>모험 장소</legend>
+      <div class="chips pills" id="world-chips"></div>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>옷 색깔</legend>
+      <div class="swatches" id="outfit-chips"></div>
+    </fieldset>
+
+    <div class="field">
+      <label class="field-title" for="from-name">이야기를 들려주는 사람</label>
+      <input type="text" id="from-name" maxlength="12" autocomplete="off" enterkeyhint="done">
+      <div class="chips pills small" id="from-chips"></div>
+    </div>
+
+    <div class="cta">
+      <button type="submit" class="btn-main">동화책 펼치기</button>
+    </div>
+  </form>
+
+  <section class="shelf" id="shelf" hidden>
+    <h2>우리 책장</h2>
+    <ul id="shelf-list"></ul>
+  </section>
+</div>
+
+<!-- 읽기 화면 -->
+<div class="read" id="screen-read" hidden>
+  <header class="read-bar">
+    <button type="button" class="icon-btn" id="btn-back" aria-label="만들기 화면으로">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="read-title" id="read-title"></div>
+    <button type="button" class="icon-btn" id="btn-speak" aria-pressed="false" aria-label="읽어 주기">
+      <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <svg class="i-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>
+    </button>
+  </header>
+
+  <div class="book" id="book">
+    <article class="page" id="page">
+      <div class="art" id="page-art"></div>
+      <div class="words" id="page-words" aria-live="polite"></div>
+    </article>
+  </div>
+
+  <div class="read-foot">
+  <nav class="read-nav" aria-label="쪽 넘기기">
+    <button type="button" class="nav-btn" id="btn-prev" aria-label="이전 쪽">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="progress">
+      <div class="progress-track"><i id="progress-bar"></i></div>
+      <span id="page-no"></span>
+    </div>
+    <button type="button" class="nav-btn" id="btn-next" aria-label="다음 쪽">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </nav>
+
+  <div class="read-tools">
+    <button type="button" class="btn-soft small" id="btn-shuffle">다른 이야기</button>
+    <button type="button" class="btn-soft small" id="btn-save">책장에 꽂기</button>
+    <button type="button" class="btn-soft small" id="btn-print">PDF로 저장</button>
+  </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="print-book" id="print-book" aria-hidden="true"></div>
+
+<script src="js/josa.js"></script>
+<script src="js/stories.js"></script>
+<script src="js/art.js"></script>
+<script src="js/photo.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
